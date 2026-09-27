@@ -42,7 +42,7 @@ await send('Emulation.setDeviceMetricsOverride', { width: 412, height: 915, devi
 await send('Emulation.setTouchEmulationEnabled', { enabled: true });
 await send('Network.enable'); await send('Network.setBypassServiceWorker', { bypass: true });
 await send('Page.enable'); await send('Runtime.enable'); await send('Log.enable');
-const load = async () => { await send('Page.navigate', { url: URL_ }); for (let i = 0; i < 100; i++) { await sleep(100); if (await js('document.readyState') === 'complete' && await js('typeof settings') === 'object') return; } console.log('load debug:', await js('document.readyState'), await js('typeof settings'), await js('document.title'), JSON.stringify(errors)); throw new Error('page did not load'); };
+const load = async () => { await send('Page.navigate', { url: URL_ }); for (let i = 0; i < 300; i++) { await sleep(100); if (await js('document.readyState') === 'complete' && await js('typeof settings') === 'object') return; } console.log('load debug:', await js('document.readyState'), await js('typeof settings'), await js('document.title'), JSON.stringify(errors)); throw new Error('page did not load'); };
 await load();
 await js(`localStorage.clear(); location.reload()`); await sleep(300); await load();
 

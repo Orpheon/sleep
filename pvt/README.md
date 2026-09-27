@@ -5,7 +5,7 @@ Single static page, installable as a PWA, data stays on the device, CSV export v
 
 ## Install on Android
 
-1. Open the hosted URL in Chrome.
+1. Open https://orpheon.github.io/sleep/pvt/ in Chrome.
 2. Menu (⋮) → **Install app** (not "Add to Home screen").
 3. Launch from the app drawer or Niagara. It runs offline from then on.
 

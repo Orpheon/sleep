@@ -35,7 +35,7 @@ Why these rules:
 
 ## Install on Android
 
-1. Open the hosted URL in Chrome.
+1. Open https://orpheon.github.io/sleep/nights/ in Chrome.
 2. Menu (⋮) → **Install app**.
 3. It then behaves like a normal app, which MacroDroid can launch.
 

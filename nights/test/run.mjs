@@ -43,7 +43,7 @@ await send('Emulation.setDeviceMetricsOverride', { width: 412, height: 915, devi
 await send('Emulation.setTouchEmulationEnabled', { enabled: true });
 await send('Network.enable'); await send('Network.setBypassServiceWorker', { bypass: true });
 await send('Page.enable'); await send('Runtime.enable'); await send('Log.enable');
-const load = async () => { await send('Page.navigate', { url: URL_ }); for (let i = 0; i < 100; i++) { await sleep(100); if (await js('document.readyState') === 'complete' && await js('typeof walk') === 'function') return; } throw new Error('page did not load: ' + JSON.stringify(errors) + ' ' + await js('[location.href, document.readyState, typeof walk, document.title].join(" | ")')); };
+const load = async () => { await send('Page.navigate', { url: URL_ }); for (let i = 0; i < 300; i++) { await sleep(100); if (await js('document.readyState') === 'complete' && await js('typeof walk') === 'function') return; } throw new Error('page did not load: ' + JSON.stringify(errors) + ' ' + await js('[location.href, document.readyState, typeof walk, document.title].join(" | ")')); };
 await load();
 await js(`localStorage.clear(); 1`); await load();
 

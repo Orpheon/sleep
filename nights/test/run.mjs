@@ -1,6 +1,6 @@
 // Headless-Chrome test for the Nights app. Usage: node test/run.mjs [outdir]
 // Serves the app folder, pins the clock, taps through the check-in, seeds histories for the
-// streak/skip rules, the 04:00 day boundary, payoff stats, calendar editing and criteria locking,
+// streak/skip rules, the 04:00 day boundary, calendar editing and export,
 // and writes screenshots to outdir.
 import { spawn } from 'node:child_process';
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
@@ -57,7 +57,7 @@ const seed = async spec => js(`(() => { entries = {}; const s = ${JSON.stringify
     entries[k] = { tried: a[0], slept: a[1], rested: a[2], ts: 1 }; }
   save(LS_DATA, entries); viewMonth = null; render(); return Object.keys(entries).length; })()`);
 const state = () => js(`JSON.stringify({ w: (() => { const w = walk(); return { streak: w.streak, best: w.best, bank: w.bank, covered: [...w.covered], lastBreak: w.lastBreak }; })(),
-  hero: document.getElementById('streakNum').textContent, unit: document.getElementById('streakUnit').textContent, sub: document.getElementById('streakSub').textContent,
+  hero: document.getElementById('streakNum').textContent, unit: document.getElementById('streakUnit').textContent,
   heroCls: document.getElementById('streakNum').className, miss: document.getElementById('miss').hidden ? null : document.getElementById('miss').textContent,
   tiles: [...document.querySelectorAll('#tiles .tile')].map(t => t.querySelector('.label').textContent + '=' + t.querySelector('.value').textContent) })`).then(JSON.parse);
 const tapCheckin = (k, v) => js(`document.querySelector('#checkin .q[data-k=${k}] button[data-v="${v}"]').click(); 1`);
@@ -68,7 +68,6 @@ await setNow(T + 'T08:00:00');
 let s = await state();
 check(await js(`document.getElementById('when').textContent`) === 'Night of Sat → Sun 27 Sep', 'header names last night');
 check(s.hero === '0' && s.heroCls.includes('zero'), 'empty state shows 0, not in accent');
-check((await js(`document.getElementById('payoff').textContent`)).includes('After a couple of weeks'), 'payoff empty-state text');
 await shot('1-fresh');
 await tapCheckin('tried', 1);
 s = await state();
@@ -76,7 +75,7 @@ check(await js(`entries['${T}'].tried`) === true, 'tap "Tried" saves for this mo
 check(s.hero === '1' && s.unit === 'night in a row', 'streak 1, singular unit');
 await tapCheckin('slept', 1); await tapCheckin('rested', 0);
 check(await js(`JSON.stringify([entries['${T}'].slept, entries['${T}'].rested])`) === '[true,false]', 'slept/rested saved');
-check(await js(`document.getElementById('saved').textContent`).then(t => t.startsWith('Saved.')), 'all-three saved message');
+check(await js(`document.getElementById('checkin').classList.contains('done')`), 'card collapses once all three are answered');
 check(await js(`localStorage.getItem('nights.entries')`).then(t => JSON.parse(t)[T].tried === true), 'persisted to localStorage');
 await tapCheckin('tried', 1);
 check(await js(`entries['${T}'].tried`) === null && (await state()).hero === '0', 'tapping the chosen answer again clears it');
@@ -90,7 +89,7 @@ check(await js('todayKey()') === T, '02:30 Monday still counts as Sunday morning
 await setNow('2026-09-28T04:30:00');
 check(await js('todayKey()') === day(1), '04:30 Monday is Monday morning');
 s = await state();
-check(s.hero === '1' && s.sub === 'Log last night to extend it', 'unanswered today: streak carried from yesterday, with prompt');
+check(s.hero === '1', 'unanswered today: streak carried from yesterday');
 await setNow(T + 'T08:00:00');
 
 // ---------- 3. streak and skip rules ----------
@@ -132,30 +131,14 @@ console.log('4. miss panel');
 spec = {}; for (let i = -6; i <= -1; i++) spec[day(i)] = 'y'; spec[T] = 'n';
 await seed(spec); s = await state();
 check(s.miss && s.miss.startsWith('A skip covered last night') && s.miss.includes('holds at 6'), 'covered miss message');
-check(s.miss.includes('Tip: write a note'), 'note tip when no note set');
-await js(`settings.note = 'You felt awful in August. The chores stopped first.'; save(LS_SET, settings); render(); 1`);
-check((await state()).miss.includes('You felt awful in August'), 'note to future self shown after a miss');
 await shot('4-miss-covered', 700);
 spec[day(-1)] = 'n'; await seed(spec); s = await state();
 check(s.miss.startsWith('Two in a row'), 'two-in-a-row message');
 spec = { [T]: 'n' }; await seed(spec); s = await state();
 check(s.miss.startsWith('Tonight starts a new streak'), 'first-ever miss is not called "two in a row"');
-await js(`settings.note = ''; save(LS_SET, settings); render(); 1`);
 
-// ---------- 5. payoff ----------
-console.log('5. payoff');
-spec = {};
-// tried: 8 nights, slept well 6/8, rested 4/8; didn't: 4 nights, slept well 1/4, rested 1/4
-const Y = [[1,1],[1,1],[1,1],[1,1],[1,0],[1,0],[0,0],[0,0]], N = [[1,1],[0,0],[0,0],[0,0]];
-Y.forEach((a, i) => spec[day(-1 - i)] = [true, !!a[0], !!a[1]]);
-N.forEach((a, i) => spec[day(-20 - i)] = [false, !!a[0], !!a[1]]);
-await seed(spec);
-const pay = await js(`[...document.querySelectorAll('#payoff .bar .v')].map(v => v.textContent)`);
-check(JSON.stringify(pay) === JSON.stringify(['75% of 8', '25% of 4', '50% of 8', '25% of 4']), `payoff rates ${JSON.stringify(pay)}`);
-check((await js(`document.querySelector('#payoff .note').textContent`)).startsWith('Few nights'), 'small-n caveat shown');
-
-// ---------- 6. realistic history for screenshots ----------
-console.log('6. realistic history');
+// ---------- 5. realistic history for screenshots ----------
+console.log('5. realistic history');
 spec = {}; let r = 7;
 for (let i = -75; i <= -1; i++) {
   r = (r * 1103515245 + 12345) % 2147483648; const u = r / 2147483648;
@@ -174,7 +157,6 @@ check(await js(`document.querySelectorAll('#weekly svg path.col').length`) <= 26
 await shot('5-home-top');
 const H = await fullHeight(); await shot('6-home-full', H);
 await tapCheckin('tried', 1); await tapCheckin('slept', 1); await tapCheckin('rested', 0);
-check(await js(`document.getElementById('checkin').classList.contains('done')`), 'check-in collapses once all three are answered');
 await shot('5b-home-done');
 await js(`delete entries['${T}']; save(LS_DATA, entries); render(); 1`);
 // weekly tooltip
@@ -187,8 +169,8 @@ check(await js(`document.querySelector('#weekly .title').textContent`) === 'Morn
 check(await js(`document.querySelectorAll('#cal .cell.s').length`) === 0, 'skip marks only on the "tried" view');
 await js(`document.querySelector('#metricSeg [data-m=tried]').click(); 1`);
 
-// ---------- 7. calendar editing & month nav ----------
-console.log('7. calendar edit');
+// ---------- 6. calendar editing & month nav ----------
+console.log('6. calendar edit');
 await js(`document.querySelector('#cal [data-k="${day(-9)}"]').click(); 1`);
 check(await js(`getComputedStyle(document.getElementById('sheet')).display`) === 'block', 'tapping a day opens the edit sheet');
 check(await js(`document.getElementById('sheetTitle').textContent`) === 'Night of Thu → Fri 18 Sep', 'sheet names the night');
@@ -205,18 +187,8 @@ await js(`document.getElementById('prevM').click(); 1`);
 check(await js(`document.getElementById('prevM').disabled`), 'cannot page before the first entry');
 await js(`viewMonth = null; renderCal(); 1`);
 
-// ---------- 8. criteria lock ----------
-console.log('8. criteria lock');
-await js(`document.getElementById('critIn').value = 'Lights out by 23:30, phone on the charger across the room'; document.getElementById('critBtn').click(); 1`);
-check(await js(`document.getElementById('critIn').readOnly`) && await js(`document.getElementById('critLine').textContent`) === 'Lights out by 23:30, phone on the charger across the room', 'saved criteria is locked and shown under the question');
-check(await js(`document.getElementById('critSince').textContent`) === 'Since Sun 27 Sep', 'criteria dated');
-await setNow('2026-10-04T08:00:00');
-await js(`document.getElementById('critBtn').click(); document.getElementById('critIn').value = 'Lights out by 00:00'; document.getElementById('critBtn').click(); 1`);
-check(await js(`settings.criteriaHistory.length`) === 1 && (await js(`document.getElementById('critHist').textContent`)).includes('Until Sun 4 Oct: “Lights out by 23:30'), 'changing criteria keeps the old one, dated');
-await setNow(T + 'T08:00:00');
-
-// ---------- 9. export ----------
-console.log('9. export');
+// ---------- 7. export ----------
+console.log('7. export');
 const csv = await js('csv()');
 const lines = csv.trim().split('\n');
 check(lines[0] === 'morning,tried,slept_well,rested,logged_at', 'CSV header');

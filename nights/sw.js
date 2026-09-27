@@ -1,6 +1,6 @@
 // Stale-while-revalidate service worker. Bump CACHE when files change.
 // Other apps share this origin (orpheon.github.io), so only this app's own old caches are deleted.
-const CACHE = 'nights-v1.0.1';
+const CACHE = 'nights-v1.1.0';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 
 self.addEventListener('install', e => {

@@ -42,25 +42,14 @@ h1 { font-size: 18px; font-weight: 600; margin: 0; letter-spacing: 0.02em; }
 header .when { color: var(--muted); font-size: 14px; }
 h2 { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin: 30px 0 10px; }
 p { line-height: 1.45; }
-.muted { color: var(--muted); font-size: 13px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
 button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; }
-button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 button.small { padding: 8px 12px; font-size: 14px; }
-textarea { font: inherit; font-size: 15px; width: 100%; min-height: 64px; resize: vertical; padding: 10px 12px; border-radius: 10px;
-  border: 1px solid var(--border); background: var(--surface-2); color: var(--ink); line-height: 1.4; }
-label { display: block; font-size: 13px; color: var(--ink-2); margin: 14px 0 6px; }
-label:first-child { margin-top: 0; }
-textarea[readonly] { background: transparent; border-color: var(--grid); color: var(--ink-2); }
-.critbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; }
-#critHist:not(:empty) { margin-top: 8px; line-height: 1.4; }
-#critHist div + div { margin-top: 4px; }
 
 /* check-in */
 .q + .q { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--grid); }
 .qhead { font-size: 15px; font-weight: 600; }
-.crit { font-size: 13px; color: var(--muted); margin-top: 3px; line-height: 1.35; }
-.crit.unset { font-style: italic; }
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
 .pair button { padding: 16px 8px; font-size: 16px; font-weight: 500; color: var(--ink-2); border-radius: 12px; transition: background .15s, box-shadow .15s, color .15s; }
 .pair button[aria-pressed=true][data-v="1"] { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 650;
@@ -70,18 +59,14 @@ textarea[readonly] { background: transparent; border-color: var(--grid); color: 
 /* compact once all three are answered, so the streak is on screen */
 .card.done .q { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .card.done .q + .q { margin-top: 10px; padding-top: 10px; }
-.card.done .crit { display: none; }
 .card.done .qhead { font-size: 14px; font-weight: 500; color: var(--ink-2); }
 .card.done .pair { margin-top: 0; grid-template-columns: auto auto; gap: 6px; }
 .card.done .pair button, .card.done .q.big .pair button { padding: 8px 12px; font-size: 14px; border-radius: 10px; min-width: 0; }
 .card.done .pair button[aria-pressed=true][data-v="1"] { box-shadow: 0 0 12px var(--accent-glow); }
-.saved { font-size: 13px; color: var(--muted); margin-top: 14px; text-align: center; min-height: 1em; }
 
 /* after a missed night */
 .miss { margin-top: 12px; border-radius: 16px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--no-line); }
 .miss p { margin: 0; font-size: 15px; }
-.miss blockquote { margin: 12px 0 0; padding: 0 0 0 12px; border-left: 2px solid var(--accent); color: var(--ink); white-space: pre-wrap; font-size: 15px; line-height: 1.45; }
-.miss .muted { margin-top: 10px; }
 
 /* streak hero */
 .hero { text-align: center; padding: 26px 16px 20px; }
@@ -90,11 +75,10 @@ textarea[readonly] { background: transparent; border-color: var(--grid); color: 
 .hero .num.zero { color: var(--ink-2); text-shadow: none; }
 .hero .num.rate { color: var(--ink); text-shadow: none; }
 .hero .unit { font-size: 15px; color: var(--ink-2); margin-top: 8px; }
-.hero .sub { font-size: 13px; color: var(--muted); margin-top: 6px; min-height: 1em; }
 @keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.12); } 100% { transform: scale(1); } }
 .hero .num.bump { animation: bump .45s ease-out; }
 @media (prefers-reduced-motion: reduce) { .hero .num.bump { animation: none; } .pair button { transition: none; } }
-.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
 .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px; }
 .tile .label { font-size: 12px; color: var(--muted); }
 .tile .value { font-size: 24px; font-weight: 600; margin-top: 4px; }
@@ -102,23 +86,8 @@ textarea[readonly] { background: transparent; border-color: var(--grid); color: 
 .tile .meter { height: 4px; border-radius: 2px; background: var(--grid); margin-top: 8px; overflow: hidden; }
 .tile .meter i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
 
-/* payoff */
-.payoff .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-bottom: 12px; }
-.payoff .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
-.prow + .prow { margin-top: 16px; }
-.prow .name { font-size: 14px; color: var(--ink-2); margin-bottom: 6px; }
-.bar { display: grid; grid-template-columns: 1fr 88px; align-items: center; gap: 10px; height: 22px; }
-.bar + .bar { margin-top: 4px; }
-.bar .track { height: 12px; background: var(--grid); border-radius: 0 4px 4px 0; position: relative; }
-.bar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; }
-.bar .fill.y { background: var(--accent); }
-.bar .fill.n { background: var(--no-line); }
-.bar .v { font-size: 14px; font-variant-numeric: tabular-nums; }
-.bar .v small { color: var(--muted); font-size: 12px; }
-.payoff .note { font-size: 12px; color: var(--muted); margin: 14px 0 0; }
-
 /* metric switch */
-.seg { display: flex; gap: 6px; margin-bottom: 10px; }
+.seg { display: flex; gap: 6px; margin: 26px 0 10px; }
 .seg button { flex: 1; padding: 8px 6px; font-size: 13px; color: var(--ink-2); border-radius: 10px; }
 .seg button[aria-pressed=true] { background: var(--ink); color: var(--page); border-color: transparent; font-weight: 600; }
 
@@ -190,19 +159,16 @@ td.n, td.u { color: var(--muted); }
   <section class="card" id="checkin">
     <div class="q big" data-k="tried">
       <div class="qhead">Tried to sleep well</div>
-      <div class="crit" id="critLine"></div>
       <div class="pair"><button data-v="1" aria-pressed="false">Tried</button><button data-v="0" aria-pressed="false">Didn't</button></div>
     </div>
     <div class="q" data-k="slept">
       <div class="qhead">Slept well</div>
-      <div class="crit" id="sleptLine"></div>
       <div class="pair"><button data-v="1" aria-pressed="false">Slept well</button><button data-v="0" aria-pressed="false">Slept badly</button></div>
     </div>
     <div class="q" data-k="rested">
       <div class="qhead">Feel rested</div>
       <div class="pair"><button data-v="1" aria-pressed="false">Rested</button><button data-v="0" aria-pressed="false">Tired</button></div>
     </div>
-    <div class="saved" id="saved"></div>
   </section>
 
   <section class="miss" id="miss" hidden></section>
@@ -210,14 +176,9 @@ td.n, td.u { color: var(--muted); }
   <section class="hero" id="hero" aria-live="polite">
     <div class="num" id="streakNum">0</div>
     <div class="unit" id="streakUnit">nights in a row</div>
-    <div class="sub" id="streakSub"></div>
   </section>
   <div class="tiles" id="tiles"></div>
 
-  <h2>Does trying pay off?</h2>
-  <section class="card payoff" id="payoff"></section>
-
-  <h2>History</h2>
   <div class="seg" id="metricSeg" role="group" aria-label="Metric shown">
     <button data-m="tried" aria-pressed="true">Tried</button>
     <button data-m="slept" aria-pressed="false">Slept well</button>
@@ -229,28 +190,15 @@ td.n, td.u { color: var(--muted); }
     <div class="calkey" id="calkey"></div>
     <div class="chart" id="weekly"></div>
   </section>
-  <details id="tableWrap"><summary id="tableSum">All nights</summary><table id="table"></table></details>
 
-  <h2>Settings</h2>
-  <section class="card">
-    <label for="critIn">What counts as “tried”</label>
-    <textarea id="critIn" placeholder="e.g. Lights out by 23:30, phone charging outside arm's reach"></textarea>
-    <div class="critbar"><span class="muted" id="critSince"></span><button class="small" id="critBtn">Save</button></div>
-    <div class="muted" id="critHist"></div>
-    <label for="sleptIn">What counts as “slept well”</label>
-    <textarea id="sleptIn" placeholder="e.g. Watch says ≥ 7 h 30 asleep, no long wake-up"></textarea>
-    <label for="noteIn">Note to future me</label>
-    <textarea id="noteIn" placeholder="Write this on a bad day. It is shown the morning after a night you didn't try."></textarea>
-  </section>
-  <section class="card" style="margin-top:10px">
-    <div class="row">
+  <details id="tableWrap"><summary id="tableSum">All nights</summary><table id="table"></table>
+    <div class="row" style="margin-top:12px">
       <button id="expCsv">Export CSV</button>
       <button id="expJson">Backup JSON</button>
       <button id="impJson">Restore JSON</button>
       <input type="file" id="impFile" accept="application/json,.json" hidden>
     </div>
-    <p class="muted" id="dataInfo" style="margin-bottom:0"></p>
-  </section>
+  </details>
 </main>
 
 <div id="sheetBg"></div>
@@ -265,8 +213,8 @@ td.n, td.u { color: var(--muted); }
 
 <script>
 'use strict';
-const VERSION = '1.0.0';
-const LS_DATA = 'nights.entries', LS_SET = 'nights.settings';
+const VERSION = '1.1.0';
+const LS_DATA = 'nights.entries';
 const DAY_START_HOUR = 4;   // before 04:00 still counts as the previous day
 const KEYS = ['tried', 'slept', 'rested'];
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -281,7 +229,6 @@ let clock = () => new Date();
 function load(key, fallback) { try { const v = JSON.parse(localStorage.getItem(key)); return v && typeof v === 'object' ? v : fallback; } catch (e) { return fallback; } }
 function save(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) { toast('Could not save'); } }
 let entries = load(LS_DATA, {});
-let settings = Object.assign({ criteria: '', criteriaSince: null, criteriaHistory: [], sleptCriteria: '', note: '' }, load(LS_SET, {}));
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 
 // ---------- dates (local, as YYYY-MM-DD strings) ----------
@@ -329,14 +276,6 @@ function recentRate(n) {
   for (let i = 0; i < of; i++) if (isYes(addDays(end, -i))) yes++;
   return { yes, of };
 }
-function payoff() {
-  const g = { y: { slept: [0, 0], rested: [0, 0] }, n: { slept: [0, 0], rested: [0, 0] } };
-  for (const k in entries) {
-    const e = entries[k]; if (e.tried == null) continue; const grp = e.tried ? g.y : g.n;
-    for (const m of ['slept', 'rested']) if (e[m] != null) { grp[m][1]++; if (e[m]) grp[m][0]++; }
-  }
-  return g;
-}
 
 // ---------- check-in ----------
 function setAnswer(k, m, v) {
@@ -365,16 +304,10 @@ let metric = 'tried', viewMonth = null, sheetKey = null;
 function render() {
   const t = todayKey(), e = entries[t];
   $('when').textContent = 'Night of ' + nightLabel(t);
-  $('critLine').textContent = settings.criteria || 'Define what counts in Settings below';
-  $('critLine').classList.toggle('unset', !settings.criteria);
-  $('sleptLine').textContent = settings.sleptCriteria; $('sleptLine').hidden = !settings.sleptCriteria;
   paintPair($('checkin'), e);
   const done = e ? KEYS.filter(m => e[m] != null).length : 0;
   $('checkin').classList.toggle('done', done === 3);
-  $('saved').textContent = done === 3 ? 'Saved. Tap an answer to change it.' : done ? 'Saved' : '';
-  renderMiss(e); renderHero(); renderPayoff(); renderCal(); renderWeekly(); renderTable();
-  const n = Object.keys(entries).length;
-  $('dataInfo').textContent = `${n} night${n === 1 ? '' : 's'} logged. Data stays on this phone. Back up now and then.`;
+  renderMiss(e); renderHero(); renderCal(); renderWeekly(); renderTable();
 }
 
 function renderMiss(e) {
@@ -388,31 +321,25 @@ function renderMiss(e) {
   else if (w.lastBreak === t) p.textContent = 'No skip left, so the streak reset. One night is noise; tonight starts the next one.';
   else p.textContent = 'Tonight starts a new streak.';
   box.appendChild(p);
-  if (settings.note) { const q = document.createElement('blockquote'); q.textContent = settings.note; box.appendChild(q); }
-  else { const m = document.createElement('div'); m.className = 'muted'; m.textContent = 'Tip: write a note to future you in Settings. It shows up here.'; box.appendChild(m); }
 }
 
 function renderHero() {
-  const w = walk(), s = w.streak, t = todayKey(), num = $('streakNum');
+  const w = walk(), s = w.streak, num = $('streakNum');
   const r7 = recentRate(7), r30 = recentRate(30);
   const rateMode = s === 0 && r30.of > 0;   // after a reset, lead with the longer-run rate instead of a zero
   num.classList.toggle('zero', s === 0 && !rateMode); num.classList.toggle('rate', rateMode);
   if (rateMode) {
     num.textContent = r30.yes;
     $('streakUnit').textContent = `of the last ${r30.of} night${r30.of === 1 ? '' : 's'} tried`;
-    const d = parseKey(t);
-    $('streakSub').textContent = d.getDay() === 1 ? 'New week. A good night to start the next streak.' : d.getDate() === 1 ? 'New month. A good night to start the next streak.' : 'Streak resets are normal. Tonight starts the next one.';
   } else {
     num.textContent = s;
     $('streakUnit').textContent = s === 1 ? 'night in a row' : 'nights in a row';
-    const pendingToday = !(entries[t] && entries[t].tried != null) && s > 0;
-    $('streakSub').textContent = pendingToday ? 'Log last night to extend it' : '';
   }
   const tiles = $('tiles'); tiles.textContent = '';
   tiles.append(tile('Best streak', String(w.best), null, w.best ? Math.min(1, s / w.best) : 0),
     tile('Skips left', String(w.bank), 'of ' + SKIP_MAX, w.bank / SKIP_MAX),
     rateMode ? tile('Last 7', String(r7.yes), r7.of ? 'of ' + r7.of : '', r7.of ? r7.yes / r7.of : 0)
-             : tile('Last 30', r30.of ? Math.round(100 * r30.yes / r30.of) + '%' : '–', r30.of ? r30.yes + '/' + r30.of : '', r30.of ? r30.yes / r30.of : 0));
+             : tile('Last 30', r30.of ? Math.round(100 * r30.yes / r30.of) + '%' : '–', '', r30.of ? r30.yes / r30.of : 0));
 }
 function tile(label, value, small, frac) {
   const d = document.createElement('div'); d.className = 'tile';
@@ -421,35 +348,6 @@ function tile(label, value, small, frac) {
   if (small) { const s = document.createElement('small'); s.textContent = ' ' + small; v.appendChild(s); }
   const m = document.createElement('div'); m.className = 'meter'; const i = document.createElement('i'); i.style.width = (100 * frac).toFixed(1) + '%'; m.appendChild(i);
   d.append(l, v, m); return d;
-}
-
-function renderPayoff() {
-  const g = payoff(), box = $('payoff'); box.textContent = '';
-  const ny = g.y.slept[1] + g.y.rested[1], nn = g.n.slept[1] + g.n.rested[1];
-  if (!ny && !nn) { const p = document.createElement('p'); p.className = 'muted'; p.style.margin = '0'; p.textContent = 'After a couple of weeks this compares nights you tried with nights you didn’t.'; box.appendChild(p); return; }
-  const lg = document.createElement('div'); lg.className = 'legend';
-  lg.innerHTML = '<span><i style="background:var(--accent)"></i>Nights you tried</span><span><i style="background:var(--no-line)"></i>Nights you didn’t</span>';
-  box.appendChild(lg);
-  for (const [m, name] of [['slept', 'Slept well'], ['rested', 'Felt rested']]) {
-    const row = document.createElement('div'); row.className = 'prow';
-    const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = name; row.appendChild(nm);
-    for (const grp of ['y', 'n']) {
-      const [yes, of] = g[grp][m];
-      const bar = document.createElement('div'); bar.className = 'bar';
-      bar.setAttribute('aria-label', `${name}, ${grp === 'y' ? 'tried' : 'didn’t try'}: ${of ? Math.round(100 * yes / of) + '%' : 'no data'} of ${of}`);
-      const tr = document.createElement('div'); tr.className = 'track';
-      const f = document.createElement('div'); f.className = 'fill ' + grp; f.style.width = of ? (100 * yes / of).toFixed(1) + '%' : '0'; tr.appendChild(f);
-      const v = document.createElement('div'); v.className = 'v';
-      v.textContent = of ? Math.round(100 * yes / of) + '% ' : '– ';
-      const s = document.createElement('small'); s.textContent = `of ${of}`; v.appendChild(s);
-      bar.append(tr, v); row.appendChild(bar);
-    }
-    box.appendChild(row);
-  }
-  const small = Math.min(g.y.rested[1], g.n.rested[1], g.y.slept[1], g.n.slept[1]);
-  const note = document.createElement('p'); note.className = 'note';
-  note.textContent = (small < 5 ? 'Few nights in one group so far, so read this loosely. ' : '') + 'Feeling rested is the least reliable of the three: it stops tracking sleep debt after a few short nights.';
-  box.appendChild(note);
 }
 
 // month calendar
@@ -480,7 +378,7 @@ function renderCal() {
     cal.appendChild(b);
   }
   const words = { tried: ['Tried', 'Didn’t'], slept: ['Slept well', 'Slept badly'], rested: ['Rested', 'Tired'] }[metric];
-  $('calkey').innerHTML = `<span><i style="background:var(--accent)"></i>${words[0]}</span><span><i style="background:var(--no)"></i>${words[1]}</span>${metric === 'tried' ? '<span><i style="background:var(--no);border:1px solid var(--accent)"></i>Skip used</span>' : ''}<span><i style="border:1px solid var(--muted)"></i>Not logged</span><span class="muted">Each day is the morning you woke up. Tap to edit.</span>`;
+  $('calkey').innerHTML = `<span><i style="background:var(--accent)"></i>${words[0]}</span><span><i style="background:var(--no)"></i>${words[1]}</span>${metric === 'tried' ? '<span><i style="background:var(--no);border:1px solid var(--accent)"></i>Skip used</span>' : ''}`;
 }
 $('prevM').addEventListener('click', () => { let [y, m] = viewMonth; m--; if (m < 0) { m = 11; y--; } viewMonth = [y, m]; renderCal(); });
 $('nextM').addEventListener('click', () => { let [y, m] = viewMonth; m++; if (m > 11) { m = 0; y++; } viewMonth = [y, m]; renderCal(); });
@@ -579,29 +477,6 @@ $('sheetClose').addEventListener('click', closeSheet); $('sheetBg').addEventList
 $('sheetClear').addEventListener('click', () => { delete entries[sheetKey]; save(LS_DATA, entries); closeSheet(); render(); toast('Cleared'); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && sheetKey) closeSheet(); });
 
-// ---------- settings ----------
-$('critIn').value = settings.criteria; $('sleptIn').value = settings.sleptCriteria; $('noteIn').value = settings.note;
-// The "tried" definition is locked once set; changing it is a deliberate, dated edit, and old versions stay visible.
-let critEditing = false;
-function renderCrit() {
-  const set = !!settings.criteria, ro = set && !critEditing;
-  $('critIn').readOnly = ro; if (ro) $('critIn').value = settings.criteria;
-  $('critBtn').textContent = ro ? 'Change' : 'Save';
-  $('critSince').textContent = set && settings.criteriaSince ? 'Since ' + fmtDay(settings.criteriaSince) : '';
-  const h = $('critHist'); h.textContent = '';
-  (settings.criteriaHistory || []).slice().reverse().forEach(o => { const d = document.createElement('div'); d.textContent = `Until ${fmtDay(o.until)}: “${o.text}”`; h.appendChild(d); });
-}
-$('critBtn').addEventListener('click', () => {
-  if ($('critIn').readOnly) { critEditing = true; renderCrit(); $('critIn').focus(); return; }
-  const v = $('critIn').value.trim();
-  if (v !== settings.criteria) {
-    if (settings.criteria) (settings.criteriaHistory = settings.criteriaHistory || []).push({ text: settings.criteria, since: settings.criteriaSince, until: todayKey() });
-    settings.criteria = v; settings.criteriaSince = v ? todayKey() : null; save(LS_SET, settings);
-  }
-  critEditing = false; renderCrit(); render();
-});
-$('sleptIn').addEventListener('change', () => { settings.sleptCriteria = $('sleptIn').value.trim(); save(LS_SET, settings); render(); });
-$('noteIn').addEventListener('change', () => { settings.note = $('noteIn').value.trim(); save(LS_SET, settings); render(); });
 
 // ---------- export / import ----------
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(() => t.style.display = 'none', 2500); }
@@ -619,7 +494,7 @@ async function exportFile(name, content, type) {
   setTimeout(() => URL.revokeObjectURL(url), 5000); toast('Saved to Downloads');
 }
 $('expCsv').addEventListener('click', () => exportFile(`nights-${todayKey()}.csv`, csv(), 'text/csv'));
-$('expJson').addEventListener('click', () => exportFile(`nights-backup-${todayKey()}.json`, JSON.stringify({ app: 'nights', version: VERSION, exported: new Date().toISOString(), settings, entries }, null, 1), 'application/json'));
+$('expJson').addEventListener('click', () => exportFile(`nights-backup-${todayKey()}.json`, JSON.stringify({ app: 'nights', version: VERSION, exported: new Date().toISOString(), entries }, null, 1), 'application/json'));
 $('impJson').addEventListener('click', () => $('impFile').click());
 $('impFile').addEventListener('change', async ev => {
   const f = ev.target.files[0]; if (!f) return;
@@ -630,7 +505,6 @@ $('impFile').addEventListener('change', async ev => {
       const e = inc[k]; if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || !e || typeof e !== 'object') continue;
       if (!entries[k] || (e.ts || 0) > (entries[k].ts || 0)) { entries[k] = { tried: e.tried ?? null, slept: e.slept ?? null, rested: e.rested ?? null, ts: e.ts || null }; n++; }
     }
-    if (j.settings && !settings.criteria && !settings.note) { settings = Object.assign(settings, j.settings); save(LS_SET, settings); $('critIn').value = settings.criteria; $('sleptIn').value = settings.sleptCriteria; $('noteIn').value = settings.note; renderCrit(); }
     save(LS_DATA, entries); render(); toast(`Restored ${n} night${n === 1 ? '' : 's'}`);
   } catch (err) { toast('Could not read backup'); }
   ev.target.value = '';
@@ -644,7 +518,7 @@ document.addEventListener('visibilitychange', () => {
   render();
 });
 window.addEventListener('resize', () => renderWeekly());
-renderCrit(); render();
+render();
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 </script>
 </body>

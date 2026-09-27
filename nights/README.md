@@ -2,18 +2,18 @@
 
 A one-tap morning check-in. Three yes/no questions about last night:
 
-1. **Tried to sleep well?** Measured against a definition you write yourself. This is the one the streak counts.
-2. **Slept well?** Also against your own definition, e.g. what the watch says.
+1. **Tried to sleep well?** This is the one the streak counts.
+2. **Slept well?**
 3. **Feel rested?**
 
 Below the check-in:
 
 - the streak
 - best streak, skips left and your 30-day rate
-- a comparison of nights you tried against nights you didn't, showing how often you slept well and felt rested after each
 - a month calendar and a per-week chart, each switchable between the three questions
+- a collapsed list of all nights, with CSV export and JSON backup/restore
 
-Single static page, installable as a PWA. Data stays on the device and exports to CSV or JSON through the share sheet.
+Tap any calendar day or list row to edit that night. Single static page, installable as a PWA. Data stays on the device.
 
 ## Streak rules
 
@@ -25,7 +25,6 @@ Single static page, installable as a PWA. Data stays on the device and exports t
   - A skip night is shown with a green outline on the calendar.
 - Until this morning is answered, the streak counts up to yesterday.
 - After a reset, the big number shows how many of the last 30 nights you tried, not a zero.
-- The "tried" definition is locked once saved. Changing it is a deliberate edit, and old versions stay listed with their dates.
 
 Why these rules:
 
@@ -65,9 +64,7 @@ Two macros open it on the first unlock of the day:
 - tapping through the check-in
 - the streak and skip rules
 - the 04:00 boundary
-- the payoff statistics
 - calendar editing
-- the criteria lock
 - the CSV export
 
 Screenshots go to the output directory.

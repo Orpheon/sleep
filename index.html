@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0b0c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Nights</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root {
+  color-scheme: dark;
+  --page: #0a0b0c;
+  --surface: #131517;
+  --surface-2: #1b1e21;
+  --ink: #f4f6f7;
+  --ink-2: #c4c8cc;
+  --muted: #8b9096;
+  --faint: #4a4e53;
+  --grid: #24272b;
+  --border: rgba(255,255,255,0.08);
+  --accent: #2bff88;
+  --accent-ink: #04130a;
+  --accent-soft: rgba(43,255,136,0.12);
+  --accent-glow: rgba(43,255,136,0.35);
+  --no: #43474d;
+  --no-sel: #34383d;
+  --no-line: #6b7077;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--page); color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 16px;
+  -webkit-tap-highlight-color: transparent; }
+body { min-height: 100vh; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+main { max-width: 560px; margin: 0 auto; padding: 12px 16px 56px; }
+header { display: flex; align-items: baseline; justify-content: space-between; margin: 8px 0 14px; }
+h1 { font-size: 18px; font-weight: 600; margin: 0; letter-spacing: 0.02em; }
+header .when { color: var(--muted); font-size: 14px; }
+h2 { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin: 30px 0 10px; }
+p { line-height: 1.45; }
+.muted { color: var(--muted); font-size: 13px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; cursor: pointer; }
+button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.small { padding: 8px 12px; font-size: 14px; }
+textarea { font: inherit; font-size: 15px; width: 100%; min-height: 64px; resize: vertical; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--ink); line-height: 1.4; }
+label { display: block; font-size: 13px; color: var(--ink-2); margin: 14px 0 6px; }
+label:first-child { margin-top: 0; }
+textarea[readonly] { background: transparent; border-color: var(--grid); color: var(--ink-2); }
+.critbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; }
+#critHist:not(:empty) { margin-top: 8px; line-height: 1.4; }
+#critHist div + div { margin-top: 4px; }
+
+/* check-in */
+.q + .q { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--grid); }
+.qhead { font-size: 15px; font-weight: 600; }
+.crit { font-size: 13px; color: var(--muted); margin-top: 3px; line-height: 1.35; }
+.crit.unset { font-style: italic; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.pair button { padding: 16px 8px; font-size: 16px; font-weight: 500; color: var(--ink-2); border-radius: 12px; transition: background .15s, box-shadow .15s, color .15s; }
+.pair button[aria-pressed=true][data-v="1"] { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 650;
+  box-shadow: 0 0 22px var(--accent-glow); }
+.pair button[aria-pressed=true][data-v="0"] { background: var(--no-sel); color: var(--ink); border-color: var(--no-line); font-weight: 600; }
+.q.big .pair button { padding: 22px 8px; font-size: 18px; }
+/* compact once all three are answered, so the streak is on screen */
+.card.done .q { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.card.done .q + .q { margin-top: 10px; padding-top: 10px; }
+.card.done .crit { display: none; }
+.card.done .qhead { font-size: 14px; font-weight: 500; color: var(--ink-2); }
+.card.done .pair { margin-top: 0; grid-template-columns: auto auto; gap: 6px; }
+.card.done .pair button, .card.done .q.big .pair button { padding: 8px 12px; font-size: 14px; border-radius: 10px; min-width: 0; }
+.card.done .pair button[aria-pressed=true][data-v="1"] { box-shadow: 0 0 12px var(--accent-glow); }
+.saved { font-size: 13px; color: var(--muted); margin-top: 14px; text-align: center; min-height: 1em; }
+
+/* after a missed night */
+.miss { margin-top: 12px; border-radius: 16px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--no-line); }
+.miss p { margin: 0; font-size: 15px; }
+.miss blockquote { margin: 12px 0 0; padding: 0 0 0 12px; border-left: 2px solid var(--accent); color: var(--ink); white-space: pre-wrap; font-size: 15px; line-height: 1.45; }
+.miss .muted { margin-top: 10px; }
+
+/* streak hero */
+.hero { text-align: center; padding: 26px 16px 20px; }
+.hero .num { font-size: 88px; font-weight: 700; line-height: 1; color: var(--accent); letter-spacing: -0.03em;
+  text-shadow: 0 0 28px var(--accent-glow); }
+.hero .num.zero { color: var(--ink-2); text-shadow: none; }
+.hero .num.rate { color: var(--ink); text-shadow: none; }
+.hero .unit { font-size: 15px; color: var(--ink-2); margin-top: 8px; }
+.hero .sub { font-size: 13px; color: var(--muted); margin-top: 6px; min-height: 1em; }
+@keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.12); } 100% { transform: scale(1); } }
+.hero .num.bump { animation: bump .45s ease-out; }
+@media (prefers-reduced-motion: reduce) { .hero .num.bump { animation: none; } .pair button { transition: none; } }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px; }
+.tile .label { font-size: 12px; color: var(--muted); }
+.tile .value { font-size: 24px; font-weight: 600; margin-top: 4px; }
+.tile .value small { font-size: 14px; font-weight: 500; color: var(--muted); }
+.tile .meter { height: 4px; border-radius: 2px; background: var(--grid); margin-top: 8px; overflow: hidden; }
+.tile .meter i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+
+/* payoff */
+.payoff .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.payoff .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+.prow + .prow { margin-top: 16px; }
+.prow .name { font-size: 14px; color: var(--ink-2); margin-bottom: 6px; }
+.bar { display: grid; grid-template-columns: 1fr 88px; align-items: center; gap: 10px; height: 22px; }
+.bar + .bar { margin-top: 4px; }
+.bar .track { height: 12px; background: var(--grid); border-radius: 0 4px 4px 0; position: relative; }
+.bar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; }
+.bar .fill.y { background: var(--accent); }
+.bar .fill.n { background: var(--no-line); }
+.bar .v { font-size: 14px; font-variant-numeric: tabular-nums; }
+.bar .v small { color: var(--muted); font-size: 12px; }
+.payoff .note { font-size: 12px; color: var(--muted); margin: 14px 0 0; }
+
+/* metric switch */
+.seg { display: flex; gap: 6px; margin-bottom: 10px; }
+.seg button { flex: 1; padding: 8px 6px; font-size: 13px; color: var(--ink-2); border-radius: 10px; }
+.seg button[aria-pressed=true] { background: var(--ink); color: var(--page); border-color: transparent; font-weight: 600; }
+
+/* month calendar */
+.calhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.calhead .title { font-size: 15px; font-weight: 600; }
+.calhead button { padding: 6px 14px; font-size: 18px; line-height: 1; }
+.calhead button:disabled { opacity: 0.3; }
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.cal .dow { font-size: 11px; color: var(--muted); text-align: center; padding-bottom: 2px; }
+.cal .cell { aspect-ratio: 1; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px;
+  font-variant-numeric: tabular-nums; padding: 0; border: 1px solid transparent; background: transparent; color: var(--faint); }
+.cal .cell.past { border-color: var(--grid); color: var(--muted); }
+.cal .cell.y { background: var(--accent); color: var(--accent-ink); font-weight: 650; border-color: transparent; }
+.cal .cell.n { background: var(--no); color: var(--ink-2); border-color: transparent; }
+.cal .cell.s { background: var(--no); color: var(--ink-2); border-color: var(--accent); }
+.cal .cell.u { border-color: var(--grid); color: var(--muted); background: transparent; }
+.cal .cell.today { box-shadow: inset 0 0 0 2px var(--ink-2); }
+.cal .cell.pending { border-color: var(--accent); color: var(--ink); }
+.cal .cell:disabled { cursor: default; }
+.calkey { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 10px; flex-wrap: wrap; }
+.calkey i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+
+/* weekly chart */
+.chart { margin-top: 12px; position: relative; }
+.chart .title { font-size: 13px; color: var(--ink-2); margin-bottom: 6px; }
+.chart svg { display: block; width: 100%; height: 150px; touch-action: pan-y; }
+.chart svg text { font-family: inherit; font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+.chart .grid line { stroke: var(--grid); stroke-width: 1; }
+.chart .col { fill: var(--accent); }
+.chart .col.dim { opacity: 0.45; }
+.chart .col.hl { fill: #7dffb5; }
+.chart .trk { fill: var(--surface-2); }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--page); font-size: 12px; padding: 6px 8px; border-radius: 8px;
+  white-space: nowrap; transform: translate(-50%, -100%); display: none; z-index: 2; }
+.tip b { font-size: 14px; }
+
+/* table */
+details { margin-top: 10px; }
+details summary { cursor: pointer; color: var(--ink-2); font-size: 14px; padding: 8px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: center; padding: 9px 6px; border-bottom: 1px solid var(--grid); }
+th { color: var(--muted); font-weight: 500; font-size: 12px; }
+th:first-child, td:first-child { text-align: left; font-variant-numeric: tabular-nums; }
+tbody tr { cursor: pointer; }
+td.y { color: var(--ink); font-weight: 600; }
+td.n, td.u { color: var(--muted); }
+
+/* sheet */
+#sheetBg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 10; }
+#sheet { position: fixed; left: 0; right: 0; bottom: 0; max-width: 560px; margin: 0 auto; background: var(--surface); border-radius: 18px 18px 0 0;
+  border: 1px solid var(--border); padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); z-index: 11; display: none; }
+#sheet .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+#sheet .top b { font-size: 16px; }
+#sheet .actions { display: flex; gap: 8px; margin-top: 18px; }
+#sheet .actions button { flex: 1; }
+.danger { color: #ff7a7a; }
+
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.row > button { flex: 1 1 auto; }
+#toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: var(--page); padding: 10px 16px;
+  border-radius: 10px; font-size: 14px; display: none; z-index: 20; max-width: 90vw; }
+</style>
+</head>
+<body>
+<main>
+  <header><h1>Nights</h1><span class="when" id="when"></span></header>
+
+  <section class="card" id="checkin">
+    <div class="q big" data-k="tried">
+      <div class="qhead">Tried to sleep well</div>
+      <div class="crit" id="critLine"></div>
+      <div class="pair"><button data-v="1" aria-pressed="false">Tried</button><button data-v="0" aria-pressed="false">Didn't</button></div>
+    </div>
+    <div class="q" data-k="slept">
+      <div class="qhead">Slept well</div>
+      <div class="crit" id="sleptLine"></div>
+      <div class="pair"><button data-v="1" aria-pressed="false">Slept well</button><button data-v="0" aria-pressed="false">Slept badly</button></div>
+    </div>
+    <div class="q" data-k="rested">
+      <div class="qhead">Feel rested</div>
+      <div class="pair"><button data-v="1" aria-pressed="false">Rested</button><button data-v="0" aria-pressed="false">Tired</button></div>
+    </div>
+    <div class="saved" id="saved"></div>
+  </section>
+
+  <section class="miss" id="miss" hidden></section>
+
+  <section class="hero" id="hero" aria-live="polite">
+    <div class="num" id="streakNum">0</div>
+    <div class="unit" id="streakUnit">nights in a row</div>
+    <div class="sub" id="streakSub"></div>
+  </section>
+  <div class="tiles" id="tiles"></div>
+
+  <h2>Does trying pay off?</h2>
+  <section class="card payoff" id="payoff"></section>
+
+  <h2>History</h2>
+  <div class="seg" id="metricSeg" role="group" aria-label="Metric shown">
+    <button data-m="tried" aria-pressed="true">Tried</button>
+    <button data-m="slept" aria-pressed="false">Slept well</button>
+    <button data-m="rested" aria-pressed="false">Rested</button>
+  </div>
+  <section class="card">
+    <div class="calhead"><button id="prevM" aria-label="Previous month">‹</button><span class="title" id="monthTitle"></span><button id="nextM" aria-label="Next month">›</button></div>
+    <div class="cal" id="cal"></div>
+    <div class="calkey" id="calkey"></div>
+    <div class="chart" id="weekly"></div>
+  </section>
+  <details id="tableWrap"><summary id="tableSum">All nights</summary><table id="table"></table></details>
+
+  <h2>Settings</h2>
+  <section class="card">
+    <label for="critIn">What counts as “tried”</label>
+    <textarea id="critIn" placeholder="e.g. Lights out by 23:30, phone charging outside arm's reach"></textarea>
+    <div class="critbar"><span class="muted" id="critSince"></span><button class="small" id="critBtn">Save</button></div>
+    <div class="muted" id="critHist"></div>
+    <label for="sleptIn">What counts as “slept well”</label>
+    <textarea id="sleptIn" placeholder="e.g. Watch says ≥ 7 h 30 asleep, no long wake-up"></textarea>
+    <label for="noteIn">Note to future me</label>
+    <textarea id="noteIn" placeholder="Write this on a bad day. It is shown the morning after a night you didn't try."></textarea>
+  </section>
+  <section class="card" style="margin-top:10px">
+    <div class="row">
+      <button id="expCsv">Export CSV</button>
+      <button id="expJson">Backup JSON</button>
+      <button id="impJson">Restore JSON</button>
+      <input type="file" id="impFile" accept="application/json,.json" hidden>
+    </div>
+    <p class="muted" id="dataInfo" style="margin-bottom:0"></p>
+  </section>
+</main>
+
+<div id="sheetBg"></div>
+<section id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="top"><b id="sheetTitle"></b><button class="small" id="sheetClose">Done</button></div>
+  <div class="q" data-k="tried"><div class="qhead">Tried to sleep well</div><div class="pair"><button data-v="1" aria-pressed="false">Tried</button><button data-v="0" aria-pressed="false">Didn't</button></div></div>
+  <div class="q" data-k="slept"><div class="qhead">Slept well</div><div class="pair"><button data-v="1" aria-pressed="false">Slept well</button><button data-v="0" aria-pressed="false">Slept badly</button></div></div>
+  <div class="q" data-k="rested"><div class="qhead">Feel rested</div><div class="pair"><button data-v="1" aria-pressed="false">Rested</button><button data-v="0" aria-pressed="false">Tired</button></div></div>
+  <div class="actions"><button class="danger" id="sheetClear">Clear this night</button></div>
+</section>
+<div id="toast"></div>
+
+<script>
+'use strict';
+const VERSION = '1.0.0';
+const LS_DATA = 'nights.entries', LS_SET = 'nights.settings';
+const DAY_START_HOUR = 4;   // before 04:00 still counts as the previous day
+const KEYS = ['tried', 'slept', 'rested'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const $ = id => document.getElementById(id);
+
+// Replaceable clock so tests can pin "now".
+let clock = () => new Date();
+
+// ---------- storage ----------
+// entries: { 'YYYY-MM-DD' (the morning you woke up): { tried, slept, rested: true|false|null, ts } }
+function load(key, fallback) { try { const v = JSON.parse(localStorage.getItem(key)); return v && typeof v === 'object' ? v : fallback; } catch (e) { return fallback; } }
+function save(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) { toast('Could not save'); } }
+let entries = load(LS_DATA, {});
+let settings = Object.assign({ criteria: '', criteriaSince: null, criteriaHistory: [], sleptCriteria: '', note: '' }, load(LS_SET, {}));
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+
+// ---------- dates (local, as YYYY-MM-DD strings) ----------
+function pad(n) { return String(n).padStart(2, '0'); }
+function keyOf(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+function parseKey(k) { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d, 12); }
+function addDays(k, n) { const d = parseKey(k); d.setDate(d.getDate() + n); return keyOf(d); }
+function todayKey() { const d = clock(); if (d.getHours() < DAY_START_HOUR) d.setDate(d.getDate() - 1); return keyOf(d); }
+function daysBetween(a, b) { return Math.round((parseKey(b) - parseKey(a)) / 86400000); }
+function fmtDay(k) { const d = parseKey(k); return `${DOW[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)}`; }
+function nightLabel(k) { const d = parseKey(k); const p = parseKey(addDays(k, -1)); return `${DOW[p.getDay()]} → ${DOW[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)}`; }
+
+// ---------- stats ----------
+function isYes(k, m = 'tried') { const e = entries[k]; return !!(e && e[m] === true); }
+function firstKey() { const ks = Object.keys(entries).sort(); return ks[0] || null; }
+// Latest morning that counts: today once answered, otherwise yesterday (today is still pending).
+function settledKey() { const t = todayKey(); return entries[t] && entries[t].tried != null ? t : addDays(t, -1); }
+const SKIP_MAX = 2;
+// Walk every morning from the first entry. A tried night adds 1. A miss (didn't, or not logged) is
+// covered by a skip if one is banked and the previous morning was not a miss; otherwise the streak resets.
+// One skip is banked each Monday, up to SKIP_MAX; the bank starts at 1.
+function walk() {
+  const f = firstKey(), end = settledKey();
+  const r = { streak: 0, best: 0, bank: 1, covered: new Set(), lastBreak: null };
+  if (!f || f > end) return r;
+  let prevMiss = false;
+  for (let k = f; k <= end; k = addDays(k, 1)) {
+    if (k !== f && parseKey(k).getDay() === 1) r.bank = Math.min(SKIP_MAX, r.bank + 1);
+    if (isYes(k)) { r.streak++; prevMiss = false; }
+    else {
+      if (r.bank > 0 && !prevMiss && r.streak > 0) { r.bank--; r.covered.add(k); }
+      else { if (r.streak > 0) r.lastBreak = k; r.streak = 0; }
+      prevMiss = true;
+    }
+    r.best = Math.max(r.best, r.streak);
+  }
+  return r;
+}
+function currentStreak() { return walk().streak; }
+function bestStreak() { return walk().best; }
+// Rate over the last `n` mornings ending at the latest settled morning; unlogged mornings count as not tried.
+function recentRate(n) {
+  const end = settledKey(), f = firstKey(); if (!f || f > end) return { yes: 0, of: 0 };
+  const of = Math.min(n, daysBetween(f, end) + 1); let yes = 0;
+  for (let i = 0; i < of; i++) if (isYes(addDays(end, -i))) yes++;
+  return { yes, of };
+}
+function payoff() {
+  const g = { y: { slept: [0, 0], rested: [0, 0] }, n: { slept: [0, 0], rested: [0, 0] } };
+  for (const k in entries) {
+    const e = entries[k]; if (e.tried == null) continue; const grp = e.tried ? g.y : g.n;
+    for (const m of ['slept', 'rested']) if (e[m] != null) { grp[m][1]++; if (e[m]) grp[m][0]++; }
+  }
+  return g;
+}
+
+// ---------- check-in ----------
+function setAnswer(k, m, v) {
+  const e = Object.assign({ tried: null, slept: null, rested: null }, entries[k]);
+  e[m] = e[m] === v ? null : v;   // tapping the chosen answer again clears it
+  e.ts = clock().getTime();
+  if (KEYS.every(x => e[x] == null)) delete entries[k]; else entries[k] = e;
+  save(LS_DATA, entries);
+}
+function paintPair(root, e) {
+  root.querySelectorAll('.q').forEach(q => {
+    const v = e ? e[q.dataset.k] : null;
+    q.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(v != null && String(+v) === b.dataset.v)));
+  });
+}
+document.querySelectorAll('#checkin .pair button').forEach(b => b.addEventListener('click', () => {
+  const m = b.closest('.q').dataset.k; const before = currentStreak();
+  setAnswer(todayKey(), m, b.dataset.v === '1');
+  render();
+  if (m === 'tried' && currentStreak() > before) { const n = $('streakNum'); n.classList.remove('bump'); void n.offsetWidth; n.classList.add('bump'); }
+}));
+
+// ---------- render ----------
+let metric = 'tried', viewMonth = null, sheetKey = null;
+
+function render() {
+  const t = todayKey(), e = entries[t];
+  $('when').textContent = 'Night of ' + nightLabel(t);
+  $('critLine').textContent = settings.criteria || 'Define what counts in Settings below';
+  $('critLine').classList.toggle('unset', !settings.criteria);
+  $('sleptLine').textContent = settings.sleptCriteria; $('sleptLine').hidden = !settings.sleptCriteria;
+  paintPair($('checkin'), e);
+  const done = e ? KEYS.filter(m => e[m] != null).length : 0;
+  $('checkin').classList.toggle('done', done === 3);
+  $('saved').textContent = done === 3 ? 'Saved. Tap an answer to change it.' : done ? 'Saved' : '';
+  renderMiss(e); renderHero(); renderPayoff(); renderCal(); renderWeekly(); renderTable();
+  const n = Object.keys(entries).length;
+  $('dataInfo').textContent = `${n} night${n === 1 ? '' : 's'} logged. Data stays on this phone. Back up now and then.`;
+}
+
+function renderMiss(e) {
+  const box = $('miss');
+  if (!e || e.tried !== false) { box.hidden = true; return; }
+  box.hidden = false; box.textContent = '';
+  const t = todayKey(), w = walk(), y = entries[addDays(t, -1)];
+  const p = document.createElement('p');
+  if (w.covered.has(t)) p.textContent = `A skip covered last night, so the streak holds at ${w.streak}. Two misses in a row still end it, so tonight is the one that counts.`;
+  else if (w.lastBreak === t && !(y && y.tried === true)) p.textContent = 'Two in a row, so the streak reset. This is how it usually slips: quietly, while things feel fine. Tonight starts the next one.';
+  else if (w.lastBreak === t) p.textContent = 'No skip left, so the streak reset. One night is noise; tonight starts the next one.';
+  else p.textContent = 'Tonight starts a new streak.';
+  box.appendChild(p);
+  if (settings.note) { const q = document.createElement('blockquote'); q.textContent = settings.note; box.appendChild(q); }
+  else { const m = document.createElement('div'); m.className = 'muted'; m.textContent = 'Tip: write a note to future you in Settings. It shows up here.'; box.appendChild(m); }
+}
+
+function renderHero() {
+  const w = walk(), s = w.streak, t = todayKey(), num = $('streakNum');
+  const r7 = recentRate(7), r30 = recentRate(30);
+  const rateMode = s === 0 && r30.of > 0;   // after a reset, lead with the longer-run rate instead of a zero
+  num.classList.toggle('zero', s === 0 && !rateMode); num.classList.toggle('rate', rateMode);
+  if (rateMode) {
+    num.textContent = r30.yes;
+    $('streakUnit').textContent = `of the last ${r30.of} night${r30.of === 1 ? '' : 's'} tried`;
+    const d = parseKey(t);
+    $('streakSub').textContent = d.getDay() === 1 ? 'New week. A good night to start the next streak.' : d.getDate() === 1 ? 'New month. A good night to start the next streak.' : 'Streak resets are normal. Tonight starts the next one.';
+  } else {
+    num.textContent = s;
+    $('streakUnit').textContent = s === 1 ? 'night in a row' : 'nights in a row';
+    const pendingToday = !(entries[t] && entries[t].tried != null) && s > 0;
+    $('streakSub').textContent = pendingToday ? 'Log last night to extend it' : '';
+  }
+  const tiles = $('tiles'); tiles.textContent = '';
+  tiles.append(tile('Best streak', String(w.best), null, w.best ? Math.min(1, s / w.best) : 0),
+    tile('Skips left', String(w.bank), 'of ' + SKIP_MAX, w.bank / SKIP_MAX),
+    rateMode ? tile('Last 7', String(r7.yes), r7.of ? 'of ' + r7.of : '', r7.of ? r7.yes / r7.of : 0)
+             : tile('Last 30', r30.of ? Math.round(100 * r30.yes / r30.of) + '%' : '–', r30.of ? r30.yes + '/' + r30.of : '', r30.of ? r30.yes / r30.of : 0));
+}
+function tile(label, value, small, frac) {
+  const d = document.createElement('div'); d.className = 'tile';
+  const l = document.createElement('div'); l.className = 'label'; l.textContent = label;
+  const v = document.createElement('div'); v.className = 'value'; v.textContent = value;
+  if (small) { const s = document.createElement('small'); s.textContent = ' ' + small; v.appendChild(s); }
+  const m = document.createElement('div'); m.className = 'meter'; const i = document.createElement('i'); i.style.width = (100 * frac).toFixed(1) + '%'; m.appendChild(i);
+  d.append(l, v, m); return d;
+}
+
+function renderPayoff() {
+  const g = payoff(), box = $('payoff'); box.textContent = '';
+  const ny = g.y.slept[1] + g.y.rested[1], nn = g.n.slept[1] + g.n.rested[1];
+  if (!ny && !nn) { const p = document.createElement('p'); p.className = 'muted'; p.style.margin = '0'; p.textContent = 'After a couple of weeks this compares nights you tried with nights you didn’t.'; box.appendChild(p); return; }
+  const lg = document.createElement('div'); lg.className = 'legend';
+  lg.innerHTML = '<span><i style="background:var(--accent)"></i>Nights you tried</span><span><i style="background:var(--no-line)"></i>Nights you didn’t</span>';
+  box.appendChild(lg);
+  for (const [m, name] of [['slept', 'Slept well'], ['rested', 'Felt rested']]) {
+    const row = document.createElement('div'); row.className = 'prow';
+    const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = name; row.appendChild(nm);
+    for (const grp of ['y', 'n']) {
+      const [yes, of] = g[grp][m];
+      const bar = document.createElement('div'); bar.className = 'bar';
+      bar.setAttribute('aria-label', `${name}, ${grp === 'y' ? 'tried' : 'didn’t try'}: ${of ? Math.round(100 * yes / of) + '%' : 'no data'} of ${of}`);
+      const tr = document.createElement('div'); tr.className = 'track';
+      const f = document.createElement('div'); f.className = 'fill ' + grp; f.style.width = of ? (100 * yes / of).toFixed(1) + '%' : '0'; tr.appendChild(f);
+      const v = document.createElement('div'); v.className = 'v';
+      v.textContent = of ? Math.round(100 * yes / of) + '% ' : '– ';
+      const s = document.createElement('small'); s.textContent = `of ${of}`; v.appendChild(s);
+      bar.append(tr, v); row.appendChild(bar);
+    }
+    box.appendChild(row);
+  }
+  const small = Math.min(g.y.rested[1], g.n.rested[1], g.y.slept[1], g.n.slept[1]);
+  const note = document.createElement('p'); note.className = 'note';
+  note.textContent = (small < 5 ? 'Few nights in one group so far, so read this loosely. ' : '') + 'Feeling rested is the least reliable of the three: it stops tracking sleep debt after a few short nights.';
+  box.appendChild(note);
+}
+
+// month calendar
+function renderCal() {
+  const t = todayKey(), td = parseKey(t);
+  if (!viewMonth) viewMonth = [td.getFullYear(), td.getMonth()];
+  const [y, mo] = viewMonth;
+  $('monthTitle').textContent = `${MONTHS[mo]} ${y}`;
+  const f = firstKey();
+  $('nextM').disabled = y > td.getFullYear() || (y === td.getFullYear() && mo >= td.getMonth());
+  const fd = f ? parseKey(f) : td;
+  $('prevM').disabled = y < fd.getFullYear() || (y === fd.getFullYear() && mo <= fd.getMonth());
+  const covered = metric === 'tried' ? walk().covered : new Set();
+  const cal = $('cal'); cal.textContent = '';
+  ['M','T','W','T','F','S','S'].forEach(d => { const e = document.createElement('div'); e.className = 'dow'; e.textContent = d; cal.appendChild(e); });
+  const first = new Date(y, mo, 1, 12), lead = (first.getDay() + 6) % 7, days = new Date(y, mo + 1, 0).getDate();
+  for (let i = 0; i < lead; i++) cal.appendChild(document.createElement('div'));
+  for (let d = 1; d <= days; d++) {
+    const k = keyOf(new Date(y, mo, d, 12)), e = entries[k], v = e ? e[metric] : null;
+    const b = document.createElement('button'); b.className = 'cell'; b.textContent = d; b.dataset.k = k;
+    if (k > t) { b.disabled = true; }
+    else {
+      b.classList.add(v === true ? 'y' : covered.has(k) ? 's' : v === false ? 'n' : 'u');
+      if (k === t) b.classList.add(v == null ? 'pending' : 'today');
+      b.setAttribute('aria-label', `${fmtDay(k)}: ${v === true ? 'yes' : v === false ? 'no' : 'not logged'}${covered.has(k) ? ', covered by a skip' : ''}`);
+      b.addEventListener('click', () => openSheet(k));
+    }
+    cal.appendChild(b);
+  }
+  const words = { tried: ['Tried', 'Didn’t'], slept: ['Slept well', 'Slept badly'], rested: ['Rested', 'Tired'] }[metric];
+  $('calkey').innerHTML = `<span><i style="background:var(--accent)"></i>${words[0]}</span><span><i style="background:var(--no)"></i>${words[1]}</span>${metric === 'tried' ? '<span><i style="background:var(--no);border:1px solid var(--accent)"></i>Skip used</span>' : ''}<span><i style="border:1px solid var(--muted)"></i>Not logged</span><span class="muted">Each day is the morning you woke up. Tap to edit.</span>`;
+}
+$('prevM').addEventListener('click', () => { let [y, m] = viewMonth; m--; if (m < 0) { m = 11; y--; } viewMonth = [y, m]; renderCal(); });
+$('nextM').addEventListener('click', () => { let [y, m] = viewMonth; m++; if (m > 11) { m = 0; y++; } viewMonth = [y, m]; renderCal(); });
+$('metricSeg').addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b) return; metric = b.dataset.m;
+  $('metricSeg').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  renderCal(); renderWeekly();
+});
+
+// weekly columns: count of "yes" per Monday-start week
+const SVGNS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+function weekStart(k) { const d = parseKey(k); return addDays(k, -((d.getDay() + 6) % 7)); }
+function weeklyData() {
+  const t = todayKey(), f = firstKey(); const cur = weekStart(t);
+  const nWeeks = f ? Math.min(26, Math.max(8, Math.floor(daysBetween(weekStart(f), cur) / 7) + 1)) : 8;
+  const out = [];
+  for (let w = nWeeks - 1; w >= 0; w--) {
+    const s = addDays(cur, -7 * w); let yes = 0, logged = 0, days = 0;
+    for (let i = 0; i < 7; i++) { const k = addDays(s, i); if (k > t) break; days++; const e = entries[k]; if (e && e[metric] != null) { logged++; if (e[metric]) yes++; } }
+    out.push({ start: s, yes, logged, days, partial: days < 7 });
+  }
+  return out;
+}
+function renderWeekly() {
+  const box = $('weekly'); box.textContent = '';
+  const name = { tried: 'Nights tried', slept: 'Nights slept well', rested: 'Mornings rested' }[metric];
+  const ttl = document.createElement('div'); ttl.className = 'title'; ttl.textContent = `${name} per week`; box.appendChild(ttl);
+  const data = weeklyData();
+  const W = Math.max(280, box.clientWidth || 340), H = 150, padL = 20, padR = 4, padT = 16, padB = 22;
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': `${name} per week, last ${data.length} weeks` });
+  const g = el('g', { class: 'grid' }); const ph = H - padT - padB, y = v => padT + ph * (1 - v / 7);
+  for (const v of [0, 7]) { g.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(v), y2: y(v) })); const tx = el('text', { x: padL - 6, y: y(v) + 4, 'text-anchor': 'end' }); tx.textContent = v; g.appendChild(tx); }
+  svg.appendChild(g);
+  const slot = (W - padL - padR) / data.length, bw = Math.min(18, slot - 3);
+  const cols = [];
+  data.forEach((d, i) => {
+    const cx = padL + slot * (i + 0.5), x = cx - bw / 2, h = ph * d.yes / 7;
+    if (d.yes > 0) {
+      const r = Math.min(4, h, bw / 2);
+      const p = `M${x},${y(0)} V${y(0) - h + r} Q${x},${y(0) - h} ${x + r},${y(0) - h} H${x + bw - r} Q${x + bw},${y(0) - h} ${x + bw},${y(0) - h + r} V${y(0)} Z`;
+      const c = el('path', { d: p, class: 'col' + (d.partial ? ' dim' : '') }); svg.appendChild(c); cols.push(c);
+    } else cols.push(null);
+  });
+  // x labels: first, and each month change, spaced out
+  let lastX = -99;
+  data.forEach((d, i) => {
+    const s = parseKey(d.start); const cx = padL + slot * (i + 0.5);
+    if ((i === 0 || s.getDate() <= 7) && cx - lastX > 34) { const tx = el('text', { x: cx, y: H - 6, 'text-anchor': 'middle' }); tx.textContent = MONTHS[s.getMonth()].slice(0, 3); svg.appendChild(tx); lastX = cx; }
+  });
+  const last = data[data.length - 1];
+  const lx = padL + slot * (data.length - 0.5), ly = y(last.yes) - 5;
+  const lab = el('text', { x: Math.min(lx, W - 8), y: ly, 'text-anchor': 'middle', style: 'fill:var(--ink-2)' }); lab.textContent = last.yes; svg.appendChild(lab);
+  box.appendChild(svg);
+  const tip = document.createElement('div'); tip.className = 'tip'; box.appendChild(tip);
+  const show = ev => {
+    const r = svg.getBoundingClientRect(); const px = (ev.clientX - r.left) * W / r.width;
+    const i = Math.max(0, Math.min(data.length - 1, Math.floor((px - padL) / slot))); const d = data[i];
+    cols.forEach((c, j) => c && c.classList.toggle('hl', j === i));
+    tip.textContent = ''; const b = document.createElement('b'); b.textContent = `${d.yes} of ${d.days}`; tip.appendChild(b);
+    tip.appendChild(document.createTextNode(`  week of ${fmtDay(d.start)}${d.logged < d.days ? ` · ${d.days - d.logged} not logged` : ''}`));
+    tip.style.display = 'block';
+    const bx = (padL + slot * (i + 0.5)) * r.width / W, br = box.getBoundingClientRect();
+    tip.style.left = Math.max(tip.offsetWidth / 2, Math.min(br.width - tip.offsetWidth / 2, bx + (r.left - br.left))) + 'px';
+    tip.style.top = (r.top - br.top + y(Math.max(d.yes, 0)) * r.height / H - 8) + 'px';
+  };
+  const hide = () => { tip.style.display = 'none'; cols.forEach(c => c && c.classList.remove('hl')); };
+  svg.addEventListener('pointermove', show); svg.addEventListener('pointerdown', show); svg.addEventListener('pointerleave', hide);
+}
+
+function renderTable() {
+  const ks = Object.keys(entries).sort().reverse();
+  $('tableSum').textContent = `All nights (${ks.length})`;
+  const tb = $('table'); tb.textContent = '';
+  const th = document.createElement('thead'); th.innerHTML = '<tr><th>Morning</th><th>Tried</th><th>Slept well</th><th>Rested</th></tr>'; tb.appendChild(th);
+  const body = document.createElement('tbody');
+  for (const k of ks) {
+    const tr = document.createElement('tr'); tr.dataset.k = k;
+    const d = document.createElement('td'); d.textContent = fmtDay(k); tr.appendChild(d);
+    for (const m of KEYS) { const v = entries[k][m]; const c = document.createElement('td'); c.className = v === true ? 'y' : v === false ? 'n' : 'u'; c.textContent = v === true ? 'yes' : v === false ? 'no' : '–'; tr.appendChild(c); }
+    tr.addEventListener('click', () => openSheet(k)); body.appendChild(tr);
+  }
+  tb.appendChild(body);
+}
+
+// ---------- edit sheet ----------
+function openSheet(k) {
+  sheetKey = k; $('sheetTitle').textContent = 'Night of ' + nightLabel(k);
+  paintPair($('sheet'), entries[k]); $('sheet').style.display = 'block'; $('sheetBg').style.display = 'block';
+}
+function closeSheet() { $('sheet').style.display = 'none'; $('sheetBg').style.display = 'none'; sheetKey = null; }
+document.querySelectorAll('#sheet .pair button').forEach(b => b.addEventListener('click', () => {
+  setAnswer(sheetKey, b.closest('.q').dataset.k, b.dataset.v === '1'); paintPair($('sheet'), entries[sheetKey]); render();
+}));
+$('sheetClose').addEventListener('click', closeSheet); $('sheetBg').addEventListener('click', closeSheet);
+$('sheetClear').addEventListener('click', () => { delete entries[sheetKey]; save(LS_DATA, entries); closeSheet(); render(); toast('Cleared'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && sheetKey) closeSheet(); });
+
+// ---------- settings ----------
+$('critIn').value = settings.criteria; $('sleptIn').value = settings.sleptCriteria; $('noteIn').value = settings.note;
+// The "tried" definition is locked once set; changing it is a deliberate, dated edit, and old versions stay visible.
+let critEditing = false;
+function renderCrit() {
+  const set = !!settings.criteria, ro = set && !critEditing;
+  $('critIn').readOnly = ro; if (ro) $('critIn').value = settings.criteria;
+  $('critBtn').textContent = ro ? 'Change' : 'Save';
+  $('critSince').textContent = set && settings.criteriaSince ? 'Since ' + fmtDay(settings.criteriaSince) : '';
+  const h = $('critHist'); h.textContent = '';
+  (settings.criteriaHistory || []).slice().reverse().forEach(o => { const d = document.createElement('div'); d.textContent = `Until ${fmtDay(o.until)}: “${o.text}”`; h.appendChild(d); });
+}
+$('critBtn').addEventListener('click', () => {
+  if ($('critIn').readOnly) { critEditing = true; renderCrit(); $('critIn').focus(); return; }
+  const v = $('critIn').value.trim();
+  if (v !== settings.criteria) {
+    if (settings.criteria) (settings.criteriaHistory = settings.criteriaHistory || []).push({ text: settings.criteria, since: settings.criteriaSince, until: todayKey() });
+    settings.criteria = v; settings.criteriaSince = v ? todayKey() : null; save(LS_SET, settings);
+  }
+  critEditing = false; renderCrit(); render();
+});
+$('sleptIn').addEventListener('change', () => { settings.sleptCriteria = $('sleptIn').value.trim(); save(LS_SET, settings); render(); });
+$('noteIn').addEventListener('change', () => { settings.note = $('noteIn').value.trim(); save(LS_SET, settings); render(); });
+
+// ---------- export / import ----------
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(() => t.style.display = 'none', 2500); }
+function csv() {
+  const b = v => v === true ? 1 : v === false ? 0 : '';
+  const rows = ['morning,tried,slept_well,rested,logged_at'];
+  for (const k of Object.keys(entries).sort()) { const e = entries[k]; rows.push([k, b(e.tried), b(e.slept), b(e.rested), e.ts ? new Date(e.ts).toISOString() : ''].join(',')); }
+  return rows.join('\n') + '\n';
+}
+async function exportFile(name, content, type) {
+  const file = new File([content], name, { type });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); return; } }
+  catch (e) { if (e && e.name === 'AbortError') return; }
+  const url = URL.createObjectURL(file); const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000); toast('Saved to Downloads');
+}
+$('expCsv').addEventListener('click', () => exportFile(`nights-${todayKey()}.csv`, csv(), 'text/csv'));
+$('expJson').addEventListener('click', () => exportFile(`nights-backup-${todayKey()}.json`, JSON.stringify({ app: 'nights', version: VERSION, exported: new Date().toISOString(), settings, entries }, null, 1), 'application/json'));
+$('impJson').addEventListener('click', () => $('impFile').click());
+$('impFile').addEventListener('change', async ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  try {
+    const j = JSON.parse(await f.text()); const inc = j && j.entries; if (!inc || typeof inc !== 'object') throw new Error('no entries');
+    let n = 0;
+    for (const k in inc) {
+      const e = inc[k]; if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || !e || typeof e !== 'object') continue;
+      if (!entries[k] || (e.ts || 0) > (entries[k].ts || 0)) { entries[k] = { tried: e.tried ?? null, slept: e.slept ?? null, rested: e.rested ?? null, ts: e.ts || null }; n++; }
+    }
+    if (j.settings && !settings.criteria && !settings.note) { settings = Object.assign(settings, j.settings); save(LS_SET, settings); $('critIn').value = settings.criteria; $('sleptIn').value = settings.sleptCriteria; $('noteIn').value = settings.note; renderCrit(); }
+    save(LS_DATA, entries); render(); toast(`Restored ${n} night${n === 1 ? '' : 's'}`);
+  } catch (err) { toast('Could not read backup'); }
+  ev.target.value = '';
+});
+
+// ---------- boot ----------
+let lastDay = todayKey();
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  const t = todayKey(); if (t !== lastDay) { lastDay = t; viewMonth = null; closeSheet(); }
+  render();
+});
+window.addEventListener('resize', () => renderWeekly());
+renderCrit(); render();
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+</script>
+</body>
+</html>
